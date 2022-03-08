@@ -20,11 +20,6 @@ public class Chromosome implements Comparable{
     System.out.println("Base Conv = " + conv);
   }
   
-  // Just temp
-  private void calcFitness(float x){
-        fitness =  (float)(Math.sin(x) * Math.sin(0.4f * x) * Math.sin(3.0f * x));
-    }
-
   public void randomise(){
     for(int i = 0; i < genes.size(); i++){
       if (Math.random() > 0.5)
@@ -66,14 +61,14 @@ public class Chromosome implements Comparable{
     System.out.println();
   }
   @Override
-    public int compareTo(Object c) {
-      float f = ((Chromosome)c).getFitness();
-        if (this.fitness == f)
-          return 0;
-        else if (this.fitness < f)
-          return 1;
-        else
-          return -1;
-        
-    }
+  public int compareTo(Object c) {
+    float f = ((Chromosome)c).getFitness();
+      if (this.fitness == f)
+        return 0;
+      else if (this.fitness < f)
+        return 1;
+      else
+        return -1;
+      
+  }
 }

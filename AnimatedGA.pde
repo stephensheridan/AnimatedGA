@@ -16,7 +16,7 @@ float yZero = 0;
 boolean evolve = false;
 long generation = 0;
 
-Genetic ga = new Genetic(10, 10, 0.7, 0.3);
+Genetic ga = new Genetic(10, 10, 0.9, 0.2, 0.3);
 
 public void intialiseGraphData(){
   data = new float[NUMPOINTS];

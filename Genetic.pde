@@ -15,15 +15,17 @@ public class Genetic {
   // Control the amount of mutaiton
   private float mutationFraction;
   // Used to implement roulette wheel selection
+  private float mutationRate;
   private int [] rouletteWheel;
   private int rouletteWheelSize;
   // Keep track of best values  
   private float bestx;
   private float besty;
-
-  public Genetic(int numGenes, int populationSize,float cFraction, float mFraction){
+  
+  public Genetic(int numGenes, int populationSize,float cFraction, float mFraction, float mutationRate){
     this.numGenes = numGenes;
     this.populationSize = populationSize;
+    this.mutationRate = mutationRate;
     crossoverFraction = cFraction;
     mutationFraction = mFraction;
     
@@ -68,14 +70,14 @@ public class Genetic {
   }
   
   public void doCrossovers(){
-    int num = (int)(populationSize * crossoverFraction);
-    for (int i = num-1; i >= 0; i--){
-      int c1 = (int)(rouletteWheelSize * Math.random() * 0.9999f);
-      int c2 = (int)(rouletteWheelSize * Math.random() * 0.9999f);
+    int stop = (int)(populationSize - (populationSize * crossoverFraction));
+    for (int i = populationSize - 1; i >= stop; i--){  
+      int c1 = (int)(rouletteWheelSize * Math.random());
+      int c2 = (int)(rouletteWheelSize * Math.random());
       c1 = rouletteWheel[c1];
       c2 = rouletteWheel[c2];
       if (c1 != c2){
-        int locus = 1 + (int)((numGenes - 2) * Math.random());
+        int locus = (int)(numGenes * Math.random());
         for (int g = 0; g < numGenes; g++){
           if (g < locus)
             // Copy from parent c1 up to locus g
@@ -83,30 +85,35 @@ public class Genetic {
           else
             // Copy from parent c2 after locus g
             population.get(i).setGene(g, population.get(c2).getGene(g));
-          
         }
       }
     }
   }
+  
   public void print(){
     for(int i = 0; i < population.size(); i++){
       System.out.println(population.get(i).toFloat() + " " + population.get(i).getFitness());
     }
   }
   public void doMutations(){
-    int num = (int)(populationSize * mutationFraction);
-    for (int i=0; i<num; i++){
-      int c = (int)(populationSize * Math.random() * 0.99);
-      int g = (int)(numGenes * Math.random() * 0.99);
-        population.get(c).flipGene(g);
+    int stop = (int)(populationSize - (populationSize * crossoverFraction));
+    for (int i = populationSize - 1; i >= stop; i--){
+      if (Math.random() < mutationFraction){
+        for(int j = 0; j < numGenes; j++){
+          if (Math.random() < mutationRate){
+            int g = (int)(numGenes * Math.random());
+            population.get(i).flipGene(g);
+          }
+        }
+      }
     }
   }
-  
   public void doRemoveDuplicates(){
-    for (int i=populationSize - 1; i>3; i--){
-      for (int j=0; j<i; j++){
+    int stop = (int)(populationSize - (populationSize * crossoverFraction));
+    for (int i = populationSize - 1; i >= stop; i--){
+      for (int j=0; j<=i; j++){
         if (population.get(i).compareTo(population.get(j)) == 0){
-          int g = (int)(numGenes * Math.random() * 0.99);
+          int g = (int)(numGenes * Math.random());
           population.get(i).flipGene(g);
           break;
         }
@@ -122,16 +129,19 @@ public class Genetic {
   }
   public float getBestX(){return bestx;}
   public float getBestY(){return besty;}
+  
+  // Revised order so that best is always top
+  // Assumes population is evaluated and sorted when created
+  // This is carried out in the reset method.
+  
   public void evolve(){
-    // Revised order so that best is always top
-    // Assumes population is evaluated and sorted when created
-    // This is carried out in the reset method.
     doCrossovers();
     doMutations();
     doRemoveDuplicates();
     calcFitness();
     sortPopulation();
   }
+  
   public void reset(){
     bestx = 0;
     besty = 0;
